@@ -1,6 +1,6 @@
 {
-  "name": "component-library",
-  "version": "0.0.1",
+  "name": "@tohiga/component-library",
+  "version": "0.0.3",
   "description": "React component library",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "build": "rollup -c",
+    "prepublishOnly": "npm run build",
     "dev": "rollup -c -w",
     "lint": "eslint ./src",
     "release": "standard-version",
@@ -17,10 +18,8 @@
     "test:watch": "vitest --project unit",
     "test:storybook": "playwright install chromium && vitest run --project storybook",
     "test:all": "vitest run",
-    "postinstall": "playwright install chromium",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "prepare": "husky"
+    "build-storybook": "storybook build"
   },
   "repository": {
     "type": "git",

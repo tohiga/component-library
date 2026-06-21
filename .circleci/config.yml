@@ -40,19 +40,49 @@ jobs:
       - store_artifacts:
           path: ~/artifacts
           destination: node-build
-  deploy:
-    docker:
-      - image: cimg/base:stable
+  run-release:
+    executor: node/default
     steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          name: Configure git user
+          command: |
+            git config --global user.email "${NPM_EMAIL}"
+            git config --global user.name "${NPM_USERNAME}"
+      - run:
+          name: Run release
+          command: npm run release
+  publish-to-npm:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          name: Build
+          command: npm run build
+      - run:
+          name: Configure npm auth
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+      - run:
+          name: Publish to npm
+          command: npm publish --access public
 workflows:
   build-and-test:
     jobs:
       - test-node
-      - lint-code
+      - lint-code:
+          requires:
+            - test-node
       - build-node:
           requires:
             - test-node
             - lint-code
+      - run-release:
+          requires:
+            - build-node
+      - publish-to-npm:
+          requires:
+            - run-release
