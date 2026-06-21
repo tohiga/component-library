@@ -47,8 +47,9 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
-          name: Login to npm
-          command: git config --global user.email "${NPM_EMAIL}"
+          name: Configure git user
+          command: |
+            git config --global user.email "${NPM_EMAIL}"
             git config --global user.name "${NPM_USERNAME}"
       - run:
           name: Run release
@@ -60,19 +61,21 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
+          name: Configure npm auth
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+      - run:
           name: Publish to npm
-          command: npm publish
-          environment:
-            NPM_TOKEN: "${NPM_TOKEN}"
+          command: npm publish --access public
 workflows:
   build-and-test:
     jobs:
       - test-node
-      - lint-code
-        requires:
-          - test-node
+      - lint-code:
+          requires:
+            - test-node
       - build-node:
           requires:
+            - test-node
             - lint-code
       - run-release:
           requires:
