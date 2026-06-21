@@ -4,6 +4,15 @@ version: 2.1
 orbs:
   node: circleci/node@5
 jobs:
+lint-code:
+executor: node/default
+steps:
+  - checkout
+  - node/install-packages:
+      pkg-manager: npm
+  - run:
+      name: Run lint
+      command: npm run lint
   test-node:
     # Install node dependencies and run tests
     executor: node/default
@@ -46,9 +55,11 @@ workflows:
   build-and-test:
     jobs:
       - test-node
+      - lint-code:
       - build-node:
           requires:
             - test-node
+            - lint-code
     # - deploy:
     #     requires:
     #       - build-node
